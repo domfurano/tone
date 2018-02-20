@@ -4,7 +4,7 @@ window.onload = function () {
     let audioContext = new window.webkitAudioContext();
 
     let muted = false;
-    let maxGain = 0.03;
+    let maxGain = 0.05;
 
     let masterGain = audioContext.createGain();
     masterGain.gain.value = maxGain;
@@ -12,7 +12,9 @@ window.onload = function () {
 
     let orbitalCount = 10;
 
-    let orbitalFrequencies = new Scales().majorPentatonicFrequencies(orbitalCount);
+    let scales = new Scales();
+
+    let orbitalFrequencies = scales.pentatonicFrequencies(scales.minorPentatonicSemitones, orbitalCount);
 
     let i;
     let colors = [];

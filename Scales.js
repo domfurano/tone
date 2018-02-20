@@ -1,7 +1,8 @@
 class Scales {
     
     constructor() {
-        this.majorPentatonicHalftones = [ 0, 2, 5, 9, 11 ];
+        this.majorPentatonicSemitones = [ 0, 2, 5, 9, 11 ];
+        this.minorPentatonicSemitones = [ 0, 3, 5, 7, 10 ];
     }
 
     frequencyFromHalftones(baseFrequency, halftones) {
@@ -9,14 +10,14 @@ class Scales {
         return newFrequency;
     }
 
-    majorPentatonicFrequencies(n) { 
+    pentatonicFrequencies(semitones, n) { 
         let frequencies = [];
         let i;
         for (i = 0; i < n; i++) {
-            let remainder = i % this.majorPentatonicHalftones.length;
-            let step = Math.floor(i / this.majorPentatonicHalftones.length);
+            let remainder = i % semitones.length;
+            let step = Math.floor(i / semitones.length);
             frequencies.push(
-                this.frequencyFromHalftones(220, this.majorPentatonicHalftones[remainder] + (step * 12))
+                this.frequencyFromHalftones(220, semitones[remainder] + (step * 12))
             );
         }
         return frequencies;

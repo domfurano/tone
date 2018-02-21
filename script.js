@@ -1,7 +1,8 @@
 window.onload = function () {
     let canvas = document.getElementById('mainCanvas');
     let visualContext = canvas.getContext('2d');
-    let audioContext = new (window.audioContext || window.webkitAudioContext)();
+    let audioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext ||  window.msAudioContext);
+    let audioContext = new audioContextClass();
 
     let muted = false;
     let maxGain = 0.05;

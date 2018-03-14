@@ -4,11 +4,12 @@ class Orbital {
         this.angle = 0;
         this.radiansPerMove = radiansPerSecond / 60;
         this.color = color;
+        this.gain = 0;
 
         this.oscillatorNode = audioContext.createOscillator();
         this.gainNode = audioContext.createGain();
         this.oscillatorNode.frequency.value = frequency;
-        this.gainNode.gain.value = 0;
+        this.gainNode.gain.value = this.gain;
         this.oscillatorNode.connect(this.gainNode);
         this.gainNode.connect(audioDestination);
         this.oscillatorNode.start();

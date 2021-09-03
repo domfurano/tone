@@ -1,21 +1,29 @@
-window.onload = function () {
-    let canvas = document.getElementById('mainCanvas');
+// alpha: rotation around z-axis
+let alpha = 0;
+// gamma: left to right
+let gamma = 0;
+// beta: front back motion
+let beta = 0;
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    Math.PI_2 = Math.PI * 2;
+    let canvas = document.getElementById('canvas');
     let visualContext = canvas.getContext('2d');
-    let audioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext ||  window.msAudioContext);
+
+    let audioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext || window.msAudioContext);
     let audioContext = new audioContextClass();
 
-    let muted = false;
     let maxGain = 0.05;
 
     let masterGain = audioContext.createGain();
     masterGain.gain.value = maxGain;
     masterGain.connect(audioContext.destination);
 
-    let orbitalCount = 10;
+    let orbitalCount = 12;
 
     let scales = new Scales();
 
-    let orbitalFrequencies = scales.pentatonicFrequencies(scales.minorPentatonicSemitones, orbitalCount);
+    let orbitalFrequencies = scales.getFrequencies(scales.minorPentatonicSemitones, orbitalCount);
 
     let i;
     let colors = [];
@@ -28,7 +36,7 @@ window.onload = function () {
     let orbitals = [];
     for (i = 0; i < orbitalCount; i++) {
         let orbital = new Orbital(
-            (i + 1) / 4,
+            (i + 1) * (1 / 3),
             colors[colors.length - i - 1],
             orbitalFrequencies[orbitalFrequencies.length - i - 1],
             audioContext,
@@ -42,7 +50,8 @@ window.onload = function () {
         visualContext.clearRect(0, 0, canvas.width, canvas.height);
         drawBackground();
         orbitals.forEach(orbital => {
-            orbital.move();
+            // orbital.move();
+            orbital.move2();
             orbital.draw(visualContext);
             orbital.play();
             let sine = Math.sin(orbital.angle);
@@ -60,34 +69,49 @@ window.onload = function () {
     }
 
     function click(event) {
-        // orbitals.forEach(orbital => orbital.strike());
+        audioContext.resume();
     }
 
     function mouseMove(event) {
-        // MOUSE_X = event.clientX;
-        // MOUSE_Y = event.clientY;
+        audioContext.resume();
     }
 
     function keyDown(event) {
-        // if (event.keyCode == 78) {
-        //     circles.push(new Circle(MOUSE_X, MOUSE_Y));
-        // }
+        audioContext.resume();
     }
 
-    function visibilityChange(event) {
-        if (muted) {
-            masterGain.gain.value = maxGain;
-            muted = false;
-        } else {
-            masterGain.gain.value = 0;
-            muted = true;
-        }
+    function mouseDown(event) {
+        audioContext.resume();
     }
 
     function onResize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         resetOrbitals();
+    }
+
+    function touchEnd() {
+        audioContext.resume();
+        if (typeof DeviceOrientationEvent !== undefined && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            // (optional) Do something before API request prompt.
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    // (optional) Do something after API prompt dismissed.
+                    if (response === 'granted') {
+                        window.addEventListener('deviceorientation', (event) => {
+                            // alpha: rotation around z-axis
+                            alpha = event.alpha;
+                            // gamma: left to right
+                            gamma = event.gamma;
+                            // beta: front back motion
+                            beta = event.beta;
+                        }, true);
+                    }
+                })
+                .catch(console.error);
+        } else {
+            alert("DeviceMotionEvent is not defined");
+        }
     }
 
     function resetOrbitals() {
@@ -111,9 +135,10 @@ window.onload = function () {
     window.addEventListener('click', click, false);
     window.addEventListener('mousemove', mouseMove, false);
     window.addEventListener('keydown', keyDown, false);
-    document.addEventListener('visibilitychange', visibilityChange, false);
+    window.addEventListener('mousedown', mouseDown, false);
+    window.addEventListener('touchend', touchEnd, false);
 
     onResize();
     window.requestAnimationFrame(animate);
 
-};
+});
